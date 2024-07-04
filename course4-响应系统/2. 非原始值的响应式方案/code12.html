@@ -71,12 +71,14 @@ function createReactive(obj, isShallow = false, isReadonly = false) {
       const oldVal = target[key]
       // 如果属性不存在，则说明是在添加新的属性，否则是设置已存在的属性
       const type = Array.isArray(target)
+        // 如果代理目标是数组，检测被设置的索引值是否小于数组长度，如果是，表示修改（SET），否则是添加操作（ADD）
         ? Number(key) < target.length ? 'SET' : 'ADD'
         : Object.prototype.hasOwnProperty.call(target, key) ? 'SET' : 'ADD'
       // 设置属性值
       const res = Reflect.set(target, key, newVal, receiver)
       if (target === receiver.raw) {
         if (oldVal !== newVal && (oldVal === oldVal || newVal === newVal)) {
+          // 增加第四个参数，即触发响应的新值（当新值长度大于旧值长度时，才触发新值对应的副作用函数，旧的副作用函数不应该被触发）
           trigger(target, key, type, newVal)
         }
       }
@@ -142,8 +144,9 @@ function trigger(target, key, type, newVal) {
       }
     })
   }
-
+// 当操作关系为ADD,并且目标对象是数组时，应该取出并执行那些与length属性相关联的副作用函数
   if (type === 'ADD' && Array.isArray(target)) {
+    // 取出与length相关联的副作用函数
     const lengthEffects = depsMap.get('length')
     lengthEffects && lengthEffects.forEach(effectFn => {
       if (effectFn !== activeEffect) {
@@ -151,9 +154,11 @@ function trigger(target, key, type, newVal) {
       }
     })
   }
-
+// 如果操作是数组，且修改了数组的length 属性
   if (Array.isArray(target) && key === 'length') {
     depsMap.forEach((effects, key) => {
+      // 对于索引大于或者等于新的length值的元素
+      // 需要把索引相关联的副作用函数取出并添加到 effectsToRun 中待执行
       if (key >= newVal) {
         effects.forEach(effectFn => {
           if (effectFn !== activeEffect) {
@@ -220,7 +225,7 @@ const arr = reactive(['foo'])
 effect(() => {
   console.log(arr[0]) // foo
 })
-
+// 将数组长度修改为0，导致第0个元素被删除，因此应该触发响应
 arr.length = 0
 
 
