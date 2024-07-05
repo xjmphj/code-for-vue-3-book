@@ -144,6 +144,7 @@ const mutableInstrumentations = {
     const target = this.raw
     const hadKey = target.has(key)
     const res = target.add(key)
+    // 只有在值不存在的情况下才触发响应
     if (!hadKey) {
       trigger(target, key, 'ADD')
     }
@@ -151,8 +152,12 @@ const mutableInstrumentations = {
   },
   delete(key) {
     const target = this.raw
+    const hadKey = target.has(key)
     const res = target.delete(key)
-    trigger(target, key, 'DELETE')
+    // 要删除的元素存在时，才触发响应
+    if(hadKey){
+      trigger(target, key, 'DELETE')
+    }
     return res
   }
 }
