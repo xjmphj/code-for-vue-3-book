@@ -47,13 +47,15 @@ const arrayInstrumentations = {}
   }
 })
 
-
+// 标记变量，控制是否允许追踪，默认为true,即可追踪
 let shouldTrack = true
 ;['push'].forEach(method => {
   const originMethod = Array.prototype[method]
   arrayInstrumentations[method] = function(...args) {
+    // 在调用原始方法前禁止追踪（防止 查找，设置，循环触发执行依赖副作用函数）
     shouldTrack = false
     let res = originMethod.apply(this, args)
+    // 执行完成后，回复原来的行为，允许追踪
     shouldTrack = true
     return res
   }
@@ -139,6 +141,7 @@ function createReactive(obj, isShallow = false, isReadonly = false) {
 }
 
 function track(target, key) {
+  // 当禁止追踪时，直接返回
   if (!activeEffect || !shouldTrack) return
   let depsMap = bucket.get(target)
   if (!depsMap) {
