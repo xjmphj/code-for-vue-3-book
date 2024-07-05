@@ -152,34 +152,36 @@ const instrumentations = {
 }
 
 function createReactive(obj, isShallow = false, isReadonly = false) {
-  return new Proxy(obj, {
-    // get(target, key, receiver) {
-    //   if (key === 'raw') return target
-    //   if (key === 'size') {
-    //     track(target, ITERATE_KEY)
-    //     return Reflect.get(target, key, target)
-    //   }
+  // return new Proxy(obj, {
+  //   get(target, key, receiver) {
+  //     if (key === 'raw') return target
+  //     if (key === 'size') {
+  //       // 调用track 函数建立响应联系
+  //       track(target, ITERATE_KEY)
+  //       return Reflect.get(target, key, target)
+  //     }
 
-    //   return Reflect.get(instrumentations, key)
-    // }
-  })
+  //     return Reflect.get(instrumentations, key)
+  //   }
+  // })
 }
 
 // =================================================================
 
-const s = new Set([1, 2, 3])
-const p = new Proxy(s, {
-    get(target, key, receiver) {
-      if (key === 'size') {
-        return Reflect.get(target, key, target)
+//  属性删除列子
+/* const s = new Set([1, 2, 3])
+  const p = new Proxy(s, {
+      get(target, key, receiver) {
+        if (key === 'size') {
+          return Reflect.get(target, key, target)
+        }
+        return target[key].bind(target)
+       // return Reflect.get(target, key, receiver) // p.delete(1) 会得到错误， Method Set.prototype.delete called on incompatible receiver [object Object]
       }
-
-      return Reflect.get(target, key, receiver)
     }
-  }
-)
+*/ )
 
-p.delete(1)
+// p.delete(1)
 
 
 
