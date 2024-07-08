@@ -20,10 +20,11 @@ function createRenderer(options) {
   }
 
   function patch(n1, n2, container) {
+    // n1 不存在，意味着挂载
     if (!n1) {
       mountElement(n2, container)
     } else {
-      //
+      // n1 存在意味着打补丁
     }
   }
 
