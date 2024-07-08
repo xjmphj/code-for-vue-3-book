@@ -260,7 +260,9 @@ const obj = reactive({ foo: 1, bar: 2 })
 
 function toRefs(obj) {
   const ret = {}
+  // 使用for...in 循环遍历对象
   for (const key in obj) {
+    // 逐个调用 toRef 完成转换
     ret[key] = toRef(obj, key)
   }
   return ret
@@ -275,7 +277,7 @@ function toRef(obj, key) {
       obj[key] = val
     }
   }
-
+  // 定义 __v_isRef 属性 区分是非原始值的响应对象，还是包裹的原始值  reactive({value:1}) / ref(1)
   Object.defineProperty(wrapper, '__v_isRef', {
     value: true
   })
